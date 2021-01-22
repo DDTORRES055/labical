@@ -1,0 +1,165 @@
+<project name="LaBicla" default="web" basedir=".">
+
+	<!-- ClassPath-->
+	<property name="classpath" value="%CLASSPATH%"/>
+	<!-- root directory of project -->
+	<property name="root" value="."/>
+	<!-- root location of the build output -->
+	<property name="build" value="build"/>
+	<!-- location of the JSP files -->
+	<property name="jspfiles" value="${root}/jsp"/>
+	<!-- location of the XML files -->
+	<property name="xmlfiles" value="${root}/xml"/>
+	<!-- location of the Resource files -->
+	<property name="resourcefiles" value="${root}/resource"/>
+	<!-- root location of the distribution director-->
+	<property name="dist" value="dist"/>
+	<!-- application name -->
+	<property name="applicationname" value="LaBicla"/>
+	<property name="lib" value="${root}/lib" />
+
+	<property name="deploydir" value="C:\apache-tomcat-8.5.59\webapps" />
+	<!--
+		<property name="ant.build.javac.source" value="1.8"/>
+		<property name="ant.build.javac.target" value="1.8"/>
+		-->
+	
+	<property name="build.sysclasspath" value="last"/>
+
+	<path id="compile.classpath">
+		<pathelement location="${root}/lib/servlet-api.jar"/>
+		<pathelement location="${root}/lib/mail.jar"/>
+		<pathelement location="${root}/lib/mysql-connector-java-8.0.22.jar"/>
+	</path>
+
+	<target name="web" depends="clean,prepare,compile,war,deploy" description="Ejecuta deploy de aplicacion.">
+		<tstamp>
+			<format property="ENDTIME" pattern="MM/dd/yyyy hh:mm aa" />
+		</tstamp>
+		<echo>Ensamble de aplicacion terminado: ${ENDTIME}</echo>
+	</target>
+
+	<target name="war" depends="clean,prepare,compile" description="Ensambla archivo war.">
+		<!-- Copia las clases que se necesitan en el archivo WAR -->
+		<copy todir="${build}/WEB-INF/classes">
+			<fileset dir="${build}/classes">
+				<include name="**/dao/*" />
+				<include name="**/security/*" />
+				<include name="**/servlet/*" />
+				<include name="**/util/*" />
+				<include name="**/valueobject/*" />
+			</fileset>
+		</copy>
+
+
+		<!-- Copia las librerias que se necesitan en el archivo WAR -->
+
+
+		<copy todir="${build}/WEB-INF/lib">
+			<fileset dir="${root}/lib">
+				<include name="mysql-connector-java-8.0.22.jar"/>
+			</fileset>
+		</copy>
+
+		<!-- Copia los templates que se necesitan en el archivo WAR -->
+
+		<copy todir="${build}/WEB-INF/tags">
+			<fileset dir="${root}/WEB-INF/tags">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+
+		<!-- Crea el archivo WAR -->
+		<war warfile="${dist}/${applicationname}.war" webxml="${root}/WEB-INF/web.xml">
+			<!--fileset dir="${applicationname}"/-->
+			<fileset dir="${build}">
+				<include name="WEB-INF/**"/>
+				<include name="*.html" />
+				<include name="*.jsp" />
+
+				<include name="css/**" />
+				<include name="js/**" />
+				<include name="fonts/**" />
+				<include name="ico/**" />
+				<include name="images/**" />
+
+			</fileset>
+		</war>
+	</target>
+
+
+	<!-- Crea la estructura de directorio y copia archivos requeridos -->
+	<target name="prepare" depends="clean">
+		<mkdir dir="${build}"/>
+		<mkdir dir="${build}/classes"/>
+		<mkdir dir="${build}/META-INF"/>
+		<mkdir dir="${build}/WEB-INF"/>
+		<mkdir dir="${build}/WEB-INF/classes"/>
+		<mkdir dir="${build}/WEB-INF/lib"/>
+		<mkdir dir="${build}/WEB-INF/properties"/>
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${dist}/lib"/>
+
+		<copy todir="${build}">
+			<fileset dir="${root}">
+				<include name="*.html" />
+				<include name="*.jsp" />
+			</fileset>
+		</copy>
+
+
+		<copy todir="${build}/css">
+			<fileset dir="${root}/css">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build}/js">
+			<fileset dir="${root}/js">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build}/fonts">
+			<fileset dir="${root}/fonts">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build}/ico">
+			<fileset dir="${root}/ico">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build}/images">
+			<fileset dir="${root}/images">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- Compila los archivos java y los copia en el directorio destino de archido class -->
+	<target name="compile" depends="clean,prepare">
+		<javac srcdir="src" destdir="${build}/classes" debug="${javac.debug}" release="8">
+			<classpath refid = "compile.classpath"/>
+<!--		<compilerarg value="-Xlint:unchecked" /> -->
+		</javac>
+	</target>
+
+	<!-- Borra carpetas temporales -->
+	<target name="clean" description="Elimina las carpetas generadas en el proceso de ensamble de aplicacion">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+
+	<!-- Copia el archivo war a la carpeta de deploy -->
+	<target name="deploy" depends="war">
+		<copy todir="${deploydir}">
+			<fileset dir="${dist}">
+				<include name="*.war*"/>
+			</fileset>
+		</copy>
+	</target>
+
+</project>

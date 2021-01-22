@@ -1,0 +1,11 @@
+== ====================================================================================================
+==
+== LaBiclaV0.6
+==
+== ====================================================================================================
+ - Main page implementation with JSP
+ - User Session: User full name is shown on the screen when user has been authenticated.
+ - MVC pattern implementation using JSPs (views) and Servlets (Controllers)
+ - ValueObject pattern implementation
+ - New Error ValueOject
+ 
